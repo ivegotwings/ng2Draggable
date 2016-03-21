@@ -2,6 +2,10 @@
 *.js
 *.map
 
+#log files
+*.log
+
+
 #Node Modules
 node_modules/
 
