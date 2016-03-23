@@ -12,7 +12,7 @@ import {DragDataService}          from './dragData.service';
 	directives  : [DragZoneDirective],
 	template: `   		
 			<li *ngFor = "#el of dragZones; #idx = index" style = "float : left">
-				<dragzone [dragZoneElems] = "dragZones[idx]"></dragzone>
+				<dragzone [dragZoneElems] = "el"></dragzone>
 			</li>`,
 	providers: [DragDataService],
 })

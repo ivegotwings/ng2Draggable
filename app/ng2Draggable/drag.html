@@ -1,8 +1,8 @@
 <div>
-	<ul>
+	<ul  style="list-style: none;">
 		<h1>DRAGZONE</h1>
    		<li *ngFor = "#el of dragZoneElems; #idx = index">
-			<h1 [dragResponder] = "true">{{el.first}} {{el.last}}</h1>
+			<h1 [dragResponder] = "el">{{el.first}} {{el.last}}</h1>
 		</li>
 	</ul>
-</div>
+</div> 	

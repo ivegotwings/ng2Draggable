@@ -7,8 +7,10 @@
  */
 
 
-import {Component , Input} from 'angular2/core';
+import {Component , Input, EventEmitter , OnInit} from 'angular2/core';
 import {DragResponderDirective}   from './dragResponder.directive';
+import {MessageBus} from './messageBus/messageBus';
+import {IMessageBus} from './messageBus/IMessageBus';
 
 @Component({
 	selector: 'dragzone',
@@ -16,9 +18,19 @@ import {DragResponderDirective}   from './dragResponder.directive';
 	directives: [DragResponderDirective],
 })
 
-export class DragZoneDirective{
+export class DragZoneDirective implements OnInit{
+	private _messageBus : IMessageBus
+	
 	@Input() dragZoneElems: Object[];
 	constructor() {
-		console.log(this.dragZoneElems);
+		this._messageBus = MessageBus;
+	}
+
+	ngOnInit(){
+		// this._messageBus.listen("dragStop", (val) => {
+		// 	let index = this.dragZoneElems.indexOf(val);
+		// 	if(index > -1)
+		// 		this.dragZoneElems.splice(index, 1);
+		// });
 	}
 }

@@ -1,6 +1,6 @@
-import {Customer} from './customer';
+import {ICustomer} from './customer';
 
-export var CUSTOMERS: Customer[] = [
+export var CUSTOMERS: ICustomer[] = [
 	{"first": "Lawrence", "last": "Nguyen"},
 	{"first": "Tommy", "last": "Hines"},
 	{ "first": "Carmen", "last": "Odom" },

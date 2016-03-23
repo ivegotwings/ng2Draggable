@@ -12,8 +12,10 @@
 */
 
 
-import {Directive, ElementRef, EventEmitter, Input, OnInit, Renderer, Attribute, HostListener} from 'angular2/core';
+import {Directive, ElementRef, EventEmitter, Output, Input, OnInit, Renderer, Attribute, HostListener} from 'angular2/core';
 import Rx from 'rxjs/Rx';
+import {MessageBus} from './messageBus/messageBus';
+import {IMessageBus} from './messageBus/IMessageBus';
 
 @Directive({
 	selector : '[dragResponder]',
@@ -22,6 +24,7 @@ import Rx from 'rxjs/Rx';
 export class DragResponderDirective implements OnInit{
 
 	private _elem: ElementRef;
+	private _messageBus: IMessageBus;
 	private _elemBounds: ClientRect;
 	private _mousedrag: Rx.Observable<any>;
 	private _mouseup  : EventEmitter<any> = new EventEmitter(); 
@@ -30,41 +33,17 @@ export class DragResponderDirective implements OnInit{
 	private _mouseout : EventEmitter<any> = new EventEmitter();
 	private _margin: number[] = new Array<number>();
 	private _startPos: Object;
+	private  _dragInProgress : boolean;
 
-	@Input() dragResponder: boolean;
+	@Input('dragResponder') dragObject: Object;
 	constructor(private _el: ElementRef, private _renderer : Renderer) {
 			this._elem = _el;
-			this._mousedrag = this._mousedown.switchMap((mdwnEvn, i) => {
-				this.DisableSelection();
-				mdwnEvn.preventDefault();
-
-				return Rx.Observable.create((observer) => {
-					observer._next({
-						prevx: mdwnEvn.x - this._elemBounds.left - window.pageXOffset,
-						prevy: mdwnEvn.y - this._elemBounds.top  - window.pageYOffset
-					});
-					observer._complete();
-				});
-			}).flatMap((offSet, i) => {
-				return this._mousemove.switchMap((mmoveEvn, i) => {
-					mmoveEvn.preventDefault();
-					this.DisableSelection();
-					this._renderer.setElementStyle(this._elem.nativeElement, "position", "fixed");
-					return Rx.Observable.create(observer => {
-						observer._next({
-							left: mmoveEvn.x - offSet["prevx"],
-							top : mmoveEvn.y - offSet["prevy"]
-						});
-						observer._complete();
-					});
-				}).takeUntil(this._mouseout).takeUntil(this._mouseup);
-			});
+			this._messageBus = MessageBus;
 		}
 
 	ngOnInit(){
 		this.InitBounds();
-		this._elem.nativeElement.style.cursor = 'pointer';
-		this._startPos = { left: this._elemBounds.left, top: this._elemBounds.top };
+		this._renderer.setElementStyle(this._elem.nativeElement, "cursor", "pointer");
 		let margin = getComputedStyle(this._el.nativeElement).getPropertyValue('margin').split(" ");
 		if (margin.length == 1)
 		{
@@ -74,7 +53,30 @@ export class DragResponderDirective implements OnInit{
 			this._margin.push(+margin[0].slice(0, margin[0].indexOf("px")));
 			this._margin.push(+margin[1].slice(0, margin[1].indexOf("px")));
 		}
-		this._mousedrag.subscribe({
+		this._mousedown.switchMap((mdwnEvn, i) => {
+			this.DisableSelection();
+			this.InitBounds();
+			mdwnEvn.preventDefault();
+			this._messageBus.dispatch("dragStart", this.dragObject);
+			this._dragInProgress = true;
+			return Rx.Observable.create((observer) => {
+				observer._next({
+					prevx: mdwnEvn.x - this._elemBounds.left,
+					prevy: mdwnEvn.y - this._elemBounds.top
+				});
+			});
+		}).flatMap((offSet, i) => {
+			return this._mousemove.flatMap((mmoveEvn, i) => {
+				mmoveEvn.preventDefault();
+				this.DisableSelection();
+				return Rx.Observable.create(observer => {
+					observer._next({
+						left: mmoveEvn.x - offSet["prevx"],
+						top: mmoveEvn.y - offSet["prevy"]
+					});
+				});
+			}).takeUntil(this._mouseout).takeUntil(this._mouseup);
+		}).subscribe({
 			next: pos => {
 				this.SetPosition(pos);
 			}
@@ -82,8 +84,9 @@ export class DragResponderDirective implements OnInit{
 	}
 
 	SetPosition(pos : Object){
-		this._renderer.setElementStyle(this._elem.nativeElement, "left", (pos["left"] - this._margin[1]).toString() + "px");
-		this._renderer.setElementStyle(this._elem.nativeElement, "top" ,  (pos["top"] - this._margin[0]).toString() + "px");
+		this._renderer.setElementStyle(this._elem.nativeElement, "position", "fixed");
+		this._renderer.setElementStyle(this._elem.nativeElement, "left", (pos["left"] - this._margin[1] - document.body.scrollLeft).toString() + "px");
+		this._renderer.setElementStyle(this._elem.nativeElement, "top" ,  (pos["top"] - this._margin[0] - document.body.scrollTop).toString() + "px");
 	}
 
 	InitBounds(){
@@ -97,31 +100,34 @@ export class DragResponderDirective implements OnInit{
 
 	@HostListener('mouseout', ['$event'])
 	OnMouseOut(event) {
-		if (!this.dragResponder) return;
-		this._mouseout.next(event);
-		this.InitBounds();
-		this.SetPosition({ left: this._elemBounds.left, top: this._elemBounds.top });
+		if (!!this.dragObject && this._dragInProgress){
+			this._messageBus.dispatch("dragStop", this.dragObject);
+			this._mouseout.next(event);
+			this._dragInProgress = false;
+		} 
 	}
 
 	@HostListener('mouseup', ['$event'])
 	OnMouseUp(event){
-		if (!this.dragResponder) return;
-		this._mouseup.next(event);
-		this.dragResponder = false;
-		this.InitBounds();
-		this.SetPosition({ left: this._elemBounds.left, top: this._elemBounds.top });	
+		if (!!this.dragObject && this._dragInProgress){
+			this._messageBus.dispatch("dragStop", this.dragObject);
+			this._mouseup.next(event);
+			this._dragInProgress = false;
+		}
 	}
 
 	@HostListener('mousedown', ['$event'])
 	OnMouseDown(event){
-		if (!this.dragResponder) return;
-		this._mousedown.next(event);
+		if (!!this.dragObject){
+			this._mousedown.next(event);
+		}
 	}
 
 	@HostListener('mousemove', ['$event'])
 	OnMouseMove(event){
-		if (!this.dragResponder) return;
-		this._mousemove.next(event);
+		if (!!this.dragObject){
+			this._mousemove.next(event);
+		}
 	}
 
 	DisableSelection(){
