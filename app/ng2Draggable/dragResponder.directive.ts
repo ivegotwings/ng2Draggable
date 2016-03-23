@@ -3,7 +3,12 @@
 	Usage:
 	 [dragResponder] = boolean //false will disable dragging
 	Example:
-	 <h1 [dragResponder] = "true"></h1>
+	<div [dragZone] = "true">
+	 	<h1 [dragResponder] = "true"></h1>
+	</div>
+
+	Elements associated with DragResponder only respond when 
+	inside a dragZone
 */
 
 
@@ -44,6 +49,7 @@ export class DragResponderDirective implements OnInit{
 				return this._mousemove.switchMap((mmoveEvn, i) => {
 					mmoveEvn.preventDefault();
 					this.DisableSelection();
+					this._renderer.setElementStyle(this._elem.nativeElement, "position", "fixed");
 					return Rx.Observable.create(observer => {
 						observer._next({
 							left: mmoveEvn.x - offSet["prevx"],
@@ -76,7 +82,6 @@ export class DragResponderDirective implements OnInit{
 	}
 
 	SetPosition(pos : Object){
-		this._renderer.setElementStyle(this._elem.nativeElement, "position", "fixed");
 		this._renderer.setElementStyle(this._elem.nativeElement, "left", (pos["left"] - this._margin[1]).toString() + "px");
 		this._renderer.setElementStyle(this._elem.nativeElement, "top" ,  (pos["top"] - this._margin[0]).toString() + "px");
 	}
@@ -100,6 +105,7 @@ export class DragResponderDirective implements OnInit{
 
 	@HostListener('mouseup', ['$event'])
 	OnMouseUp(event){
+		if (!this.dragResponder) return;
 		this._mouseup.next(event);
 		this.dragResponder = false;
 		this.InitBounds();
@@ -114,6 +120,7 @@ export class DragResponderDirective implements OnInit{
 
 	@HostListener('mousemove', ['$event'])
 	OnMouseMove(event){
+		if (!this.dragResponder) return;
 		this._mousemove.next(event);
 	}
 

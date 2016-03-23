@@ -1,23 +1,25 @@
 /*
-	This attribute directive makes the associated element draggable.
-	Usage:
-	 [dragResponder] = boolean //false will disable dragging
-	Example:
-	 <h1 [dragResponder] = "true"></h1>
+	Author Notes
 */
 
 
-import {Component , OnInit} from 'angular2/core';
-import {DragResponderDirective} from './dragResponder.directive';
-import {DragObjDirective} from './dragObj.directive';
-
+import {Component, Input}     from 'angular2/core';
+import {DragZoneDirective} from './dragZone.directive';
+import {DragDataService}          from './dragData.service';
 
 @Component({
-	selector : 'drag',
-	templateUrl : "./app/ng2Draggable/drag.html",
-	directives: [DragResponderDirective, DragObjDirective]
+	selector    : 'drag',
+	directives  : [DragZoneDirective],
+	template: `   		
+			<li *ngFor = "#el of dragZones; #idx = index" style = "float : left">
+				<dragzone [dragZoneElems] = "dragZones[idx]"></dragzone>
+			</li>`,
+	providers: [DragDataService],
 })
 
-export class DragDirective implements OnInit{
-
+export class DragDirective{
+	dragZones: Object[][] = [];
+	constructor(private _dragDataService : DragDataService) {
+		this._dragDataService.getDragData().then(dragData => (this.dragZones.push(dragData)));
+	}
 }

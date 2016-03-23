@@ -1,7 +1,8 @@
 <div>
 	<ul>
-	   <li *ngFor = "#el of [1,2,3]; #idx = index">
-			<h1 [dragResponder] = "true">DRAG {{idx}}</h1>
-		</li>	
+		<h1>DRAGZONE</h1>
+   		<li *ngFor = "#el of dragZoneElems; #idx = index">
+			<h1 [dragResponder] = "true">{{el.first}} {{el.last}}</h1>
+		</li>
 	</ul>
 </div>
