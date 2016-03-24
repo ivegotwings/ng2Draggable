@@ -20,6 +20,6 @@ import {DragDataService}          from './dragData.service';
 export class DragDirective{
 	dragZones: Object[][] = [];
 	constructor(private _dragDataService : DragDataService) {
-		this._dragDataService.getDragData().then(dragData => (this.dragZones.push(dragData)));
+		this._dragDataService.getDragData().then(dragData => { this.dragZones.push(dragData); this.dragZones.push([]) });
 	}
 }

@@ -101,18 +101,18 @@ export class DragResponderDirective implements OnInit{
 	@HostListener('mouseout', ['$event'])
 	OnMouseOut(event) {
 		if (!!this.dragObject && this._dragInProgress){
-			this._messageBus.dispatch("dragStop", this.dragObject);
 			this._mouseout.next(event);
 			this._dragInProgress = false;
+			this._messageBus.dispatch("dragStop", this.dragObject, event);
 		} 
 	}
 
 	@HostListener('mouseup', ['$event'])
 	OnMouseUp(event){
 		if (!!this.dragObject && this._dragInProgress){
-			this._messageBus.dispatch("dragStop", this.dragObject);
 			this._mouseup.next(event);
 			this._dragInProgress = false;
+			this._messageBus.dispatch("dragStop", this.dragObject, event);
 		}
 	}
 

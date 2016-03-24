@@ -7,7 +7,7 @@
  */
 
 
-import {Component , Input, EventEmitter , OnInit} from 'angular2/core';
+import {Component, Input, EventEmitter, OnInit, ElementRef, Renderer} from 'angular2/core';
 import {DragResponderDirective}   from './dragResponder.directive';
 import {MessageBus} from './messageBus/messageBus';
 import {IMessageBus} from './messageBus/IMessageBus';
@@ -20,17 +20,36 @@ import {IMessageBus} from './messageBus/IMessageBus';
 
 export class DragZoneDirective implements OnInit{
 	private _messageBus : IMessageBus
-	
+	private _elem: ElementRef;
+	private _renderer: Renderer;
+
 	@Input() dragZoneElems: Object[];
-	constructor() {
+	constructor(private _el: ElementRef, private _rend: Renderer) {
 		this._messageBus = MessageBus;
+		this._elem = _el;
+		this._renderer = _rend;
 	}
 
 	ngOnInit(){
-		// this._messageBus.listen("dragStop", (val) => {
-		// 	let index = this.dragZoneElems.indexOf(val);
-		// 	if(index > -1)
-		// 		this.dragZoneElems.splice(index, 1);
-		// });
+		this._messageBus.listen("dragStop", (obj, event) => {
+			if (this.hitTest(event.x, event.y))
+			{
+				//clone object
+				let clone: Object = JSON.parse(JSON.stringify(obj));
+				this.dragZoneElems.push(clone);
+			}
+
+			let index = this.dragZoneElems.indexOf(obj);
+			if (index > -1)
+				this.dragZoneElems.splice(index, 1);
+		});
+	}
+
+	hitTest(x:number ,y: number){
+		let bounds = this._elem.nativeElement.getBoundingClientRect();// ngDraggable.getPrivOffset(element);
+		return  x >= bounds.left
+			 && x <= bounds.right
+			 && y <= bounds.bottom
+			 && y >= bounds.top;
 	}
 }
