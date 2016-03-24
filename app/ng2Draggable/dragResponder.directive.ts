@@ -119,6 +119,7 @@ export class DragResponderDirective implements OnInit{
 	@HostListener('mousedown', ['$event'])
 	OnMouseDown(event){
 		if (!!this.dragObject){
+			this._messageBus.dispatch("dragStart", this.dragObject, event);
 			this._mousedown.next(event);
 		}
 	}
