@@ -1,8 +1,12 @@
-<div>
-	<ul  style="list-style: none;">
-		<h1>DRAGZONE</h1>
-   		<li *ngFor = "#el of dragZoneElems; #idx = index">
-			<h1 [dragResponder] = "el">{{el.first}} {{el.last}}</h1>
-		</li>
-	</ul>
+<div style = "background : blue; height:600px">
+  <div class="panel panel-default">
+  	    <div class="panel-heading">
+	      <h3 class="panel-title">Drag Zone</h3>
+	    </div>
+		<ul class="nav nav-pills nav-stacked" style="list-style: none">
+	   		<li *ngFor = "#el of dragZoneElems; #idx = index">
+				<h4 [style.position]="'fixed'" [style.top.px]="idx* 30" [style.margin-top] = "80.0" [dragResponder] = "el">{{el.first}} {{el.last}}</h4>
+			</li>
+		</ul>
+  </div>
 </div> 	

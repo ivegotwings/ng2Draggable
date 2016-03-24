@@ -57,8 +57,6 @@ export class DragResponderDirective implements OnInit{
 			this.DisableSelection();
 			this.InitBounds();
 			mdwnEvn.preventDefault();
-			this._messageBus.dispatch("dragStart", this.dragObject);
-			this._dragInProgress = true;
 			return Rx.Observable.create((observer) => {
 				observer._next({
 					prevx: mdwnEvn.x - this._elemBounds.left,
@@ -69,6 +67,7 @@ export class DragResponderDirective implements OnInit{
 			return this._mousemove.flatMap((mmoveEvn, i) => {
 				mmoveEvn.preventDefault();
 				this.DisableSelection();
+				this._dragInProgress = true;
 				return Rx.Observable.create(observer => {
 					observer._next({
 						left: mmoveEvn.x - offSet["prevx"],
@@ -84,9 +83,9 @@ export class DragResponderDirective implements OnInit{
 	}
 
 	SetPosition(pos : Object){
-		this._renderer.setElementStyle(this._elem.nativeElement, "position", "fixed");
 		this._renderer.setElementStyle(this._elem.nativeElement, "left", (pos["left"] - this._margin[1] - document.body.scrollLeft).toString() + "px");
 		this._renderer.setElementStyle(this._elem.nativeElement, "top" ,  (pos["top"] - this._margin[0] - document.body.scrollTop).toString() + "px");
+		this._renderer.setElementStyle(this._elem.nativeElement, "position", "fixed");
 	}
 
 	InitBounds(){
@@ -101,9 +100,10 @@ export class DragResponderDirective implements OnInit{
 	@HostListener('mouseout', ['$event'])
 	OnMouseOut(event) {
 		if (!!this.dragObject && this._dragInProgress){
-			this._mouseout.next(event);
+			console.log("MouseOut");
 			this._dragInProgress = false;
 			this._messageBus.dispatch("dragStop", this.dragObject, event);
+			this._mouseout.next(event);
 		} 
 	}
 

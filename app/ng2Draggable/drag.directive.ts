@@ -10,10 +10,12 @@ import {DragDataService}          from './dragData.service';
 @Component({
 	selector    : 'drag',
 	directives  : [DragZoneDirective],
-	template: `   		
-			<li *ngFor = "#el of dragZones; #idx = index" style = "float : left">
-				<dragzone [dragZoneElems] = "el"></dragzone>
-			</li>`,
+	template: `   	
+			<div class = "row">
+				<dragzone  [dragZoneElems] = "dragZones[0]" class="col-xs-4"></dragzone>
+				<dragzone  [dragZoneElems] = "dragZones[1]" class="col-xs-4"></dragzone>
+			</div>	
+			`,
 	providers: [DragDataService],
 })
 
