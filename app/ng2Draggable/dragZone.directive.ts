@@ -26,6 +26,7 @@ export class DragZoneDirective implements OnInit{
 	private _hasElem: boolean = false;
 
 	@Input() dragZoneElems: Object[];
+	@Input() dragZoneId: number;
 	constructor(private _el: ElementRef, private _rend: Renderer) {
 		this._messageBus = MessageBus;
 		this._elem = _el;
@@ -33,10 +34,12 @@ export class DragZoneDirective implements OnInit{
 	}
 
 	ngOnInit(){
-		this._messageBus.registerDispatchEndCallBack( (event, obj) => {
-			if((event == "dragStop") && (!DragZoneDirective.HITTEST)){
-				console.log("Element Dropped OutSide of All DragZones");
-				this._messageBus.dispatch("noZone", obj);		
+		this._messageBus.registerDispatchEndCallBack( (event, obj) => 
+		{
+			if (event == "dragStop") {
+				if (!DragZoneDirective.HITTEST) {
+					this._messageBus.dispatch("noZone", obj);
+				}
 			}
 		});
 
@@ -58,6 +61,7 @@ export class DragZoneDirective implements OnInit{
 				let clone: Object = JSON.parse(JSON.stringify(obj));
 				this.dragZoneElems.push(clone);
 				DragZoneDirective.HITTEST = true;
+				this._messageBus.dispatch("zoneDrop", obj, this.dragZoneId);
 			}
 
 			let index = this.dragZoneElems.indexOf(obj);

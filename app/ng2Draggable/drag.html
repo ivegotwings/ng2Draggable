@@ -5,7 +5,7 @@
 	    </div>
 		<ul class="nav nav-pills nav-stacked" style="list-style: none">
 	   		<li *ngFor = "#el of dragZoneElems; #idx = index">
-				<h4 [style.position]="'fixed'" [style.top.px]="idx* 30" [style.margin-top] = "80.0" [dragResponder] = "el">{{el.first}} {{el.last}}</h4>
+				<h4 [style.position]="'fixed'" [style.top.px]="idx* 30" [style.margin-top] = "80.0" [style.z-index] = 100 [dragResponder] = "el">{{el.first}} {{el.last}}</h4>
 			</li>
 		</ul>
   </div>
