@@ -8,14 +8,13 @@
 
 
 import {Component, Input, EventEmitter, OnInit, ElementRef, Renderer, ViewChildren} from 'angular2/core';
-import {DragElementDirective}   from './dragElement.directive';
 import {DragResponderDirective}   from './dragResponder.directive';
 import {MessageBus} from './messageBus/messageBus';
 import {IMessageBus} from './messageBus/IMessageBus';
 
 @Component({
 	selector: 'dragzone',
-	directives: [DragElementDirective, DragResponderDirective],
+	directives: [DragResponderDirective],
 	template :`
 		<div style = "background : blue; height:600px">
 		  <div class="panel panel-default">
