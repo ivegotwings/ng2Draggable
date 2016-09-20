@@ -1,5 +1,5 @@
 import {Injectable} from 'angular2/core';
-import {CUSTOMERS} from '../Customer/mock-customer';
+import {CUSTOMERS} from '../customer/mock-customer';
 
 @Injectable()
 export class DragDataService{
